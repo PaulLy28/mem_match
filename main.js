@@ -15,6 +15,7 @@ function MemoryMatch(cardset){
         var imgArr = [];
         var rowSize = 3;
         var row = [];
+        this.cardObjects = {};
         // copy the cards into the array twice (we need one of each to match)
         imgArr = imgArr.concat(this.cardSet).concat(this.cardSet);
         // here we shuffle the cards a few times to randomize them each time
@@ -73,13 +74,14 @@ function MemoryMatch(cardset){
         this.frontCard = $("<div>", {
             id: "frontOfCard",
             img: baseUrl + img,
+            html: "<img src='" + baseUrl + 'card-' + img + ".jpg'>",
             class: "front"
 
         });
 
         this.backCard = $("<div>",{
             id: "backOfCard",
-            img: baseUrl + "images/" + img,
+            html: "<img src='" + baseUrl + 'card-back.jpg' + "'>",
             class: "back"
         });
 
@@ -90,12 +92,12 @@ function MemoryMatch(cardset){
         }
 
         //hide toggles between cards and remove cards if match
-        this.toggleCards = function(){
-            $("cardClicked").toggleClass("");
+        this.flipBack = function(){
+            $(this.backCard).toggle();
         }
 
         this.testCard = function(){
-            console.log(this.id);
+            console.log(this.id, "YOUR DEAD");
         }
 
     }
@@ -104,8 +106,12 @@ var cardimages =  [ 'flower','toad','goomba','mario'];
 var game = new MemoryMatch(cardimages);
 game.boardCreate();
 
-$("#gamearea").on('click','#front',function(){
+$("#gamearea").on('click','.card',function(){
     console.log(this.id);
+    game.cardObjects[this.id].testCard();
+})
+$("#gamearea").on("click", '.front', function(){
+    console.log("front clicked");
 })
 
 //edit for later
