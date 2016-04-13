@@ -9,7 +9,7 @@ function MemoryMatch(cardset){
 
     this.talk = function(){
         console.log("talk");
-    }
+    };
 
     this.boardCreate = function(){
         var imgArr = [];
@@ -36,7 +36,7 @@ function MemoryMatch(cardset){
             }
         }
         console.log(this.board, this.cardObjects);
-    }
+    };
     this.shuffle = function(arr) {
         var currNum = arr.length,
             temp, ranNum;
@@ -56,11 +56,11 @@ function MemoryMatch(cardset){
 
     this.reset = function(){
         this.boardCreate();
-    }
+    };
 
     this.Board = function(){
 
-    }
+    };
 
 //generate front and back cards
     function Card(id, img){
@@ -87,12 +87,12 @@ function MemoryMatch(cardset){
         this.appendCards = function(){
             $(this.card).append(this.frontCard, this.backCard);
             $("#gamearea").append(this.card);
-        }
+        };
 
         //hide toggles between cards and remove cards if match
         this.toggleCards = function(){
             $("cardClicked").toggleClass("");
-        }
+        };
 
         this.testCard = function(){
             console.log(this.id);
@@ -104,8 +104,8 @@ var cardimages =  [ 'flower','toad','goomba','mario'];
 var game = new MemoryMatch(cardimages);
 game.boardCreate();
 
-$("#gamearea").on('click','#front',function(){
+$("#gamearea").on('click','.card',function(){
     console.log(this.id);
-})
+});
 
 //edit for later
