@@ -1,43 +1,54 @@
 
 function MemoryMatch(cardset){
+    var gameScope = this;
+
     this.title=  "MemMAtch";
     this.cardSet = cardset;
-    var baseUrl = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/19554/';
     this.shuffleCount = 3;
     this.board = [];
     this.cardObjects = {};
 
-    this.talk = function(){
-        console.log("talk");
-    }
+    this.config = function(){
+        gameScope.boardCreate();
+    };
 
     this.boardCreate = function(){
         var imgArr = [];
-        var rowSize = 3;
+        var rowSize = this.rowCheck(2);
+        console.log(rowSize);
         var row = [];
-        this.cardObjects = {};
+        var rowNum = 0;
+        var colNum = 0;
+        gameScope.cardObjects = {};
         // copy the cards into the array twice (we need one of each to match)
         imgArr = imgArr.concat(this.cardSet).concat(this.cardSet);
         // here we shuffle the cards a few times to randomize them each time
         for (var i = 0; i < this.shuffleCount; i++) {
             imgArr = this.shuffle(imgArr);
         }
+        //loops through the randomized array and puts them in the board array
+        // also adds each card to an card object holder
         for(var j = 0; j < imgArr.length; j++){
-            if((j + 1) % rowSize != 0){
-                row.push(imgArr[j]);
-                this.cardObjects[j] = new Card(j, imgArr[j]);
-                this.cardObjects[j].appendCards();
+            //checks if row is full
+            if((j + 1) % rowSize == 0){
+                gameScope.cardObjects[j] = new Card(j, imgArr[j], rowNum, colNum);
+                gameScope.cardObjects[j].appendCards();
+                row.push(gameScope.cardObjects[j]);
+                gameScope.board.push(row);
+                row = [];
+                rowNum += 1;
+                colNum = 0;
             }
             else{
-                row.push(imgArr[j]);
-                this.cardObjects[j] = new Card(j, imgArr[j]);
-                this.board.push(row);
-                this.cardObjects[j].appendCards();
-                row = [];
+                gameScope.cardObjects[j] = new Card(j, imgArr[j], rowNum, colNum);
+                gameScope.cardObjects[j].appendCards();
+                row.push(this.cardObjects[j]);
+                colNum += 1;
             }
         }
-        console.log(this.board, this.cardObjects);
-    }
+        console.log(gameScope.board, gameScope.cardObjects);
+    };
+    //shuffle an array
     this.shuffle = function(arr) {
         var currNum = arr.length,
             temp, ranNum;
@@ -53,63 +64,77 @@ function MemoryMatch(cardset){
         }
         return arr;
     };
-
+    //checks if rows will be equal otherwise counts down until 1 row
+    this.rowCheck = function(num){
+        for(var i = num; i > 1 ; i -= 1){
+            if((gameScope.cardSet.length * 2) % i == 0){
+              return i;
+            }
+        }
+        return 1;
+    };
 
     this.reset = function(){
-        this.boardCreate();
-    }
+        gameScope.boardCreate();
+    };
 
     this.Board = function(){
 
-    }
+    };
+}
 
 //generate front and back cards
-    function Card(id, img){
-        this.id = id;
-        this.card = $("<div>", {
-            id: id,
-            class: "card",
-            text: "hello"
-        });
-        this.frontCard = $("<div>", {
-            id: "frontOfCard",
-            img: baseUrl + img,
-            html: "<img src='" + baseUrl + 'card-' + img + ".jpg'>",
-            class: "front"
+function Card(id, img, row, col){
+    var cardScope = this;
+    var baseUrl = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/19554/';
+    this.id = id;
+    this.imgsrc = img;
+    this.colNum = col;
+    this.rowNum = row;
+    this.card = $("<div>", {
+        id: id,
+        class: "card",
+        text: "hello"
+    });
 
-        });
+    this.frontCard = $("<div>", {
+        html: "<img src='" + baseUrl + 'card-' + img + ".jpg'>",
+        class: "front"
+    });
 
-        this.backCard = $("<div>",{
-            id: "backOfCard",
-            html: "<img src='" + baseUrl + 'card-back.jpg' + "'>",
-            class: "back"
-        });
+    this.backCard = $("<div>",{
+        html: "<img src='" + baseUrl + 'card-back.jpg' + "'>",
+        class: "back"
+    });
 
 //method to append cards
-        this.appendCards = function(){
-            $(this.card).append(this.frontCard, this.backCard);
-            $("#gamearea").append(this.card);
-        }
+    this.appendCards = function(){
+        $(this.card).append(cardScope.frontCard, cardScope.backCard);
+        $("#gamearea").append(cardScope.card);
+    };
 
-        //hide toggles between cards and remove cards if match
-        this.flipBack = function(){
-            $(this.backCard).toggle();
-        }
+    //hide toggles between cards and remove cards if match
+    this.flipBack = function(){
+        $(cardScope.backCard).toggle();
+    };
 
-        this.testCard = function(){
-            console.log(this.id, "YOUR DEAD");
-        }
-
+    this.testCard = function(){
+        console.log(cardScope.imgsrc, cardScope.rowNum, cardScope.colNum, "YO DEAD");
     }
 }
-var cardimages =  [ 'flower','toad','goomba','mario'];
+
+var cardimages =  [ 'flower','toad','goomba','mario','luigi'];
 var game = new MemoryMatch(cardimages);
 game.boardCreate();
 
+
+
 $("#gamearea").on('click','.card',function(){
-    console.log(this.id);
+    console.log($.grep(game.board, function(e){ return e[0] == "luigi"; }));
     game.cardObjects[this.id].testCard();
+
 })
+
 $("#gamearea").on("click", '.front', function(){
     console.log("front clicked");
 })
