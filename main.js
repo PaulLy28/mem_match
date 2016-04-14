@@ -81,7 +81,63 @@ function MemoryMatch(cardset){
     this.Board = function(){
 
     };
-}
+
+//card logic
+   // this.setCards = function(){
+       // this.card_clicked = null;
+       // var clicked = this.card_clicked;
+        this.first_card_clicked = null;
+        var first = this.first_card_clicked;
+        this.second_card_clicked = null;
+        var second = this.second_card_clicked;
+
+        this.firstCardClickedSet = function(id){
+            if (first === null){
+                first = this.cardObjects[id];
+                first.flipBack();
+            }
+            else {
+                this.secondCardClickedSet(id);
+            }
+        };
+
+        this.secondCardClickedSet = function(id){
+            second = this.cardObjects[id];
+            second.flipBack();
+               if (first.imgsrc === second.imgsrc) {
+                   // toggle function
+                   first.card.hide();
+                   second.card.hide();
+            }
+            else {
+                   first.flipBack();
+                   second.flipBack();
+                   first = null;
+                   second = null;
+               }
+        }
+    };  //close the setCards function
+
+        this.compareCards = function(){
+            if (first === second){
+                //increase match counter
+                pairs_matched++;
+                //remove from dom
+
+                //increase attempts
+                attempts++;
+                //accuracy calculation
+            }
+            else {
+                //flip both cards back
+                cardScope.flipBack();
+                //increase attemtps
+                attempts++;
+                //accuracy calculation
+            }
+        //}
+
+}//close the memory match function
 
 //generate front and back cards
 function Card(id, img, row, col){
@@ -130,9 +186,9 @@ game.boardCreate();
 
 
 $("#gamearea").on('click','.card',function(){
-    console.log($.grep(game.board, function(e){ return e[0] == "luigi"; }));
-    game.cardObjects[this.id].flipBack();
-
+   // console.log($.grep(game.board, function(e){ return e[0] == "luigi"; }));
+  //  game.cardObjects[this.id].flipBack();
+    game.firstCardClickedSet(this.id);
 });
 
 $("#gamearea").on("click", '.front', function(){
