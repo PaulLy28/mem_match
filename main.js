@@ -5,16 +5,30 @@ function MemoryMatch(cardset){
     this.title=  "MemMAtch";
     this.cardSet = cardset;
     this.shuffleCount = 3;
+    this.rows = 3;
     this.board = [];
     this.cardObjects = {};
 
-    this.config = function(){
-        gameScope.boardCreate();
+    this.config = function(rows){
+        gameScope.rows = this.rowCheck(rows);
+        gameScope.boardCreate(rows);
+        var width = Math.floor( 100/gameScope.board[0].length );
+        var height = Math.floor(100/gameScope.board.length);
+        var $grid = $(".gridSquare");
+        console.log("width: " + width, "height: " + height, "rows: " + gameScope.rows);
+        $grid.width((width -1) + "%").height( (height - 1) + "%");
+        if($grid.width() > $grid.height() ){
+            $(".card").width($grid.height() + "px");
+        }
+        else{
+            $(".card").width($grid.width() + "px");
+        }
+
     };
 
-    this.boardCreate = function(){
+    this.boardCreate = function(r){
         var imgArr = [];
-        var rowSize = this.rowCheck(2);
+        var rowSize = this.rowCheck(r);
         console.log(rowSize);
         var row = [];
         var rowNum = 0;
@@ -29,10 +43,15 @@ function MemoryMatch(cardset){
         //loops through the randomized array and puts them in the board array
         // also adds each card to an card object holder
         for(var j = 0; j < imgArr.length; j++){
+            var gridSquare = $("<div>", {
+                class: "gridSquare",
+                id: rowNum + "" + colNum
+            });
             //checks if row is full
             if((j + 1) % rowSize == 0){
                 gameScope.cardObjects[j] = new Card(j, imgArr[j], rowNum, colNum);
-                gameScope.cardObjects[j].appendCards();
+                $("#gamearea").append(gridSquare);
+                gameScope.cardObjects[j].appendCards("#" + rowNum + "" + colNum);
                 row.push(gameScope.cardObjects[j]);
                 gameScope.board.push(row);
                 row = [];
@@ -41,7 +60,8 @@ function MemoryMatch(cardset){
             }
             else{
                 gameScope.cardObjects[j] = new Card(j, imgArr[j], rowNum, colNum);
-                gameScope.cardObjects[j].appendCards();
+                $("#gamearea").append(gridSquare);
+                gameScope.cardObjects[j].appendCards("#" + rowNum + "" + colNum);
                 row.push(this.cardObjects[j]);
                 colNum += 1;
             }
@@ -93,24 +113,26 @@ function Card(id, img, row, col){
     this.rowNum = row;
     this.card = $("<div>", {
         id: id,
-        class: "card",
-        text: "hello"
+        class: "card"
     });
 
     this.frontCard = $("<div>", {
-        html: "<img src='" + baseUrl + 'card-' + img + ".jpg'>",
+       // html: "<img src='" + baseUrl + 'card-' + img + ".jpg'>",
+        //css: {"background-color": 'red'},
         class: "front"
     });
 
     this.backCard = $("<div>",{
-        html: "<img src='" + baseUrl + 'card-back.jpg' + "'>",
-        class: "back"
+        //html: "<img src='" + baseUrl + 'card-back.jpg' + "'>",
+        class: "back",
+
+        css: {"background": 'url(' + baseUrl + 'card-' + img + '.jpg) no-repeat'}
     });
 
 //method to append cards
-    this.appendCards = function(){
+    this.appendCards = function(path){
         $(this.card).append(cardScope.frontCard, cardScope.backCard);
-        $("#gamearea").append(cardScope.card);
+        $(path).append(cardScope.card);
     };
 
     //hide toggles between cards and remove cards if match
@@ -123,16 +145,14 @@ function Card(id, img, row, col){
     }
 }
 
-var cardimages =  [ 'flower','toad','goomba','mario','luigi'];
+var cardimages =  [ 'flower','toad','goomba','mario','luigi','yoshi'];
 var game = new MemoryMatch(cardimages);
-game.boardCreate();
-
+game.config(4);
 
 
 $("#gamearea").on('click','.card',function(){
     console.log($.grep(game.board, function(e){ return e[0] == "luigi"; }));
-    game.cardObjects[this.id].testCard();
-
+    game.cardObjects[this.id].flipBack();
 })
 
 $("#gamearea").on("click", '.front', function(){
