@@ -178,7 +178,7 @@ function MemoryMatch(){
     this.flipTopCard = function(id){
         var r = gameScope.cardObjects[id].rowNum;
         var c = gameScope.cardObjects[id].colNum;
-        if( gameScope.board[r - 1][c] !== "undefined"){
+        if(typeof gameScope.board[r - 1] !== "undefined" && typeof gameScope.board[r - 1][c] !== "undefined"){
             gameScope.board[r - 1][c].flipBack();
             setTimeout(function(){
                 gameScope.board[r - 1][c].flipBack();
@@ -239,7 +239,7 @@ game.config(5, cardimages, cardback, baseUrl);
 
 $("#gamearea").on('click','.card',function(){
    // console.log($.grep(game.board, function(e){ return e[0] == "luigi"; }));
-   //game.flipTopCard(this.id);
+   game.flipTopCard(this.id);
     game.firstCardClickedSet(this.id);
 });
 
