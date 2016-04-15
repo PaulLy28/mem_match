@@ -121,64 +121,72 @@ function MemoryMatch(){
     };
 
 //card logic
-   // this.setCards = function(){
-       // this.card_clicked = null;
-       // var clicked = this.card_clicked;
-        this.first_card_clicked = null;
-        var first = this.first_card_clicked;
-        this.second_card_clicked = null;
-        var second = this.second_card_clicked;
+    // this.setCards = function(){
+    // this.card_clicked = null;
+    // var clicked = this.card_clicked;
+    this.first_card_clicked = null;
+    var first = this.first_card_clicked;
+    this.second_card_clicked = null;
+    var second = this.second_card_clicked;
 
-        this.firstCardClickedSet = function(id){
-            if (first === null){
-                first = this.cardObjects[id];
+    this.firstCardClickedSet = function(id){
+
+        if (first === null){
+            first = this.cardObjects[id];
+            first.flipBack();
+        }
+        else if (second !== null || first.id == id){
+            return;
+        }
+        else {
+            this.secondCardClickedSet(id);
+        }
+    };
+
+    this.secondCardClickedSet = function(id){
+        second = this.cardObjects[id];
+        second.flipBack();
+
+        setTimeout(function(){
+            if (first.imgsrc === second.imgsrc) {
+                // toggle function
+                first.card.hide();
+                second.card.hide();
+            }
+            else {
                 first.flipBack();
+                second.flipBack();
+                first = null;
+                second = null;
             }
-            else {
-                this.secondCardClickedSet(id);
-            }
-        };
+        }, 1500);
 
-        this.secondCardClickedSet = function(id){
-            second = this.cardObjects[id];
-            second.flipBack();
-               if (first.imgsrc === second.imgsrc) {
-                   // toggle function
-                   first.card.hide();
-                   second.card.hide();
-            }
-            else {
-                   first.flipBack();
-                   second.flipBack();
-                   first = null;
-                   second = null;
-               }
+    };
+    //close the setCards function
+
+    this.compareCards = function(){
+        if (first === second){
+            //increase match counter
+            pairs_matched++;
+            //remove from dom
+
+            //increase attempts
+            attempts++;
+            //accuracy calculation
         }
-      //close the setCards function
-
-        this.compareCards = function(){
-            if (first === second){
-                //increase match counter
-                pairs_matched++;
-                //remove from dom
-
-                //increase attempts
-                attempts++;
-                //accuracy calculation
-            }
-            else {
-                //flip both cards back
-                cardScope.flipBack();
-                //increase attemtps
-                attempts++;
-                //accuracy calculation
-            }
+        else {
+            //flip both cards back
+            cardScope.flipBack();
+            //increase attemtps
+            attempts++;
+            //accuracy calculation
         }
+    };
 
     this.flipTopCard = function(id){
         var r = gameScope.cardObjects[id].rowNum;
         var c = gameScope.cardObjects[id].colNum;
-        if( gameScope.board[r - 1][c] !== "undefined"){
+        if( typeof gameScope.board[r - 1][c] !== "undefined"){
             gameScope.board[r - 1][c].flipBack();
             setTimeout(function(){
                 gameScope.board[r - 1][c].flipBack();
@@ -203,8 +211,8 @@ function Card(id, img, row, col, base, back){
     });
 
     this.frontCard = $("<div>", {
-       html: "<img src='" + base + img + "'>",
-       class: "front"
+        html: "<img src='" + base + img + "'>",
+        class: "front"
     });
 
     this.backCard = $("<div>",{
@@ -238,8 +246,8 @@ game.config(5, cardimages, cardback, baseUrl);
 
 
 $("#gamearea").on('click','.card',function(){
-   // console.log($.grep(game.board, function(e){ return e[0] == "luigi"; }));
-   //game.flipTopCard(this.id);
+    // console.log($.grep(game.board, function(e){ return e[0] == "luigi"; }));
+    //game.flipTopCard(this.id);
     game.firstCardClickedSet(this.id);
 });
 
