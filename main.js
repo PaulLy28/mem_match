@@ -1,21 +1,52 @@
 
-function MemoryMatch(cardset) {
+function MemoryMatch(){
     var gameScope = this;
-
-    this.title = "MemMAtch";
-    this.cardSet = cardset;
+    this.cardImageBaseUrl = "";
+    this.cardBackUrl = "";
+    this.title=  "MemMatch";
+    this.cardSet = [];
     this.shuffleCount = 3;
+    this.rows = 3;
+    //current board layout with objects in position
     this.board = [];
+    //current card Objects in game
     this.cardObjects = {};
-
-    this.config = function () {
-        gameScope.boardCreate();
+    //run config with amount of columns
+    this.config = function(cols, imageArray, imageBack, baseUrl){
+        if(imageArray){
+            this.cardSet = imageArray;
+            this.cardBackUrl = imageBack;
+        }
+        else{
+            alert('no images provided!');
+            return
+        }
+        this.cardImageBaseUrl = baseUrl || "";
+        gameScope.rows = this.colCheck(cols);
+        gameScope.boardCreate(cols);
+        this.boardAdjust();
+    };
+    //re align cards to match with board dimensions
+    this.boardAdjust = function(){
+        var width = Math.floor( 100/gameScope.board[0].length );
+        var height = Math.floor(100/gameScope.board.length);
+        var $grid = $(".gridSquare");
+        console.log("width: " + width, "height: " + height, "rows: " + gameScope.rows);
+        $grid.width((width -1) + "%").height( (height - 1) + "%");
+        if($grid.width() > $grid.height() ){
+            $(".card").width($grid.height() + "px");
+            $(".front, .back").height($grid.height() + "px");
+        }
+        else{
+            $(".card").width($grid.width() + "px");
+            $(".front, .back").height($grid.height() + "px");
+        }
     };
 
-    this.boardCreate = function () {
+    this.boardCreate = function(r){
         var imgArr = [];
-        var rowSize = this.rowCheck(2);
-        console.log(rowSize);
+        var colSize = this.colCheck(r);
+        console.log(colSize);
         var row = [];
         var rowNum = 0;
         var colNum = 0;
@@ -28,28 +59,35 @@ function MemoryMatch(cardset) {
         }
         //loops through the randomized array and puts them in the board array
         // also adds each card to an card object holder
-        for (var j = 0; j < imgArr.length; j++) {
-            //checks if row is full
-            if ((j + 1) % rowSize == 0) {
-                gameScope.cardObjects[j] = new Card(j, imgArr[j], rowNum, colNum);
-                gameScope.cardObjects[j].appendCards();
-                row.push(gameScope.cardObjects[j]);
+        for(var j = 0; j < imgArr.length; j++){
+            var gridSquare = $("<div>", {
+                class: "gridSquare",
+                id: rowNum + "" + colNum
+            });
+            //create a new card object with array position img and index
+            gameScope.cardObjects[j] = new Card(j, imgArr[j], rowNum, colNum, this.cardImageBaseUrl, this.cardBackUrl);
+            //append a grid div to game area
+            $("#gamearea").append(gridSquare);
+            //tell the card object to append itself;
+            gameScope.cardObjects[j].appendCards();
+            //push the card object to a row array;
+            row.push(this.cardObjects[j]);
+            //checks current row is full and creates a new one
+            if((j + 1) % colSize == 0){
                 gameScope.board.push(row);
                 row = [];
                 rowNum += 1;
                 colNum = 0;
             }
-            else {
-                gameScope.cardObjects[j] = new Card(j, imgArr[j], rowNum, colNum);
-                gameScope.cardObjects[j].appendCards();
-                row.push(this.cardObjects[j]);
+            //keeps adding to array
+            else{
                 colNum += 1;
             }
         }
         console.log(gameScope.board, gameScope.cardObjects);
     };
     //shuffle an array
-    this.shuffle = function (arr) {
+    this.shuffle = function(arr) {
         var currNum = arr.length,
             temp, ranNum;
         // While there remain elements to shuffle
@@ -64,21 +102,21 @@ function MemoryMatch(cardset) {
         }
         return arr;
     };
-    //checks if rows will be equal otherwise counts down until 1 row
-    this.rowCheck = function (num) {
-        for (var i = num; i > 1; i -= 1) {
-            if ((gameScope.cardSet.length * 2) % i == 0) {
+    //checks if columns will be equal otherwise counts down until 1 vertical column
+    this.colCheck = function(num){
+        for(var i = num; i > 1 ; i -= 1){
+            if((gameScope.cardSet.length * 2) % i == 0){
                 return i;
             }
         }
         return 1;
     };
 
-    this.reset = function () {
+    this.reset = function(){
         gameScope.boardCreate();
     };
 
-    this.Board = function () {
+    this.Board = function(){
 
     };
 
@@ -91,8 +129,8 @@ function MemoryMatch(cardset) {
     this.second_card_clicked = null;
     var second = this.second_card_clicked;
 
-    this.firstCardClickedSet = function (id) {
-        if (first === null) {
+    this.firstCardClickedSet = function(id){
+        if (first === null){
             first = this.cardObjects[id];
             first.flipBack();
         }
@@ -101,7 +139,7 @@ function MemoryMatch(cardset) {
         }
     };
 
-    this.secondCardClickedSet = function (id) {
+    this.secondCardClickedSet = function(id){
         second = this.cardObjects[id];
         second.flipBack();
         if (first.imgsrc === second.imgsrc) {
@@ -115,11 +153,11 @@ function MemoryMatch(cardset) {
             first = null;
             second = null;
         }
-    };
-    //};  //close the setCards function
+    }
+    //close the setCards function
 
-    this.compareCards = function () {
-        if (first === second) {
+    this.compareCards = function(){
+        if (first === second){
             //increase match counter
             pairs_matched++;
             //remove from dom
@@ -135,38 +173,50 @@ function MemoryMatch(cardset) {
             attempts++;
             //accuracy calculation
         }
-        //}
+    }
+
+    this.flipTopCard = function(id){
+        var r = gameScope.cardObjects[id].rowNum;
+        var c = gameScope.cardObjects[id].colNum;
+        if( gameScope.board[r - 1][c] !== "undefined"){
+            gameScope.board[r - 1][c].flipBack();
+            setTimeout(function(){
+                gameScope.board[r - 1][c].flipBack();
+            }, 500);
+        }
 
     }
+
 }//close the memory match function
+
 //generate front and back cards
-function Card(id, img, row, col){
+function Card(id, img, row, col, base, back){
     var cardScope = this;
-    var baseUrl = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/19554/';
+    var baseUrl = base ;
     this.id = id;
     this.imgsrc = img;
     this.colNum = col;
     this.rowNum = row;
     this.card = $("<div>", {
         id: id,
-        class: "card",
-        text: "hello"
+        class: "card"
     });
 
     this.frontCard = $("<div>", {
-        html: "<img src='" + baseUrl + 'card-' + img + ".jpg'>",
+        html: "<img src='" + base + img + "'>",
         class: "front"
     });
 
     this.backCard = $("<div>",{
-        html: "<img src='" + baseUrl + 'card-back.jpg' + "'>",
+        html: "<img src='" + base + back + "'>",
         class: "back"
+        //css: {"background": 'url(' + baseUrl + 'card-' + img + '.jpg) no-repeat'}
     });
 
 //method to append cards
     this.appendCards = function(){
         $(this.card).append(cardScope.frontCard, cardScope.backCard);
-        $("#gamearea").append(cardScope.card);
+        $("#" + this.rowNum + this.colNum).append(cardScope.card);
     };
 
     //hide toggles between cards and remove cards if match
@@ -175,24 +225,30 @@ function Card(id, img, row, col){
     };
 
     this.testCard = function(){
+
         console.log(cardScope.imgsrc, cardScope.rowNum, cardScope.colNum, "YO DEAD");
     }
 }
-
-var cardimages =  [ 'flower','toad','goomba','mario','luigi'];
-var game = new MemoryMatch(cardimages);
-game.boardCreate();
-
+//To create a game you need an image array, back image, and optional image url
+var cardimages =  [ 'flower.jpg','toad.jpg','goomba.jpg','mario.jpg','luigi.jpg','yoshi.jpg'];
+var cardback = 'back.jpg';
+var baseUrl = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/19554/card-';
+var game = new MemoryMatch();
+game.config(5, cardimages, cardback, baseUrl);
 
 
 $("#gamearea").on('click','.card',function(){
-   // console.log($.grep(game.board, function(e){ return e[0] == "luigi"; }));
-  //  game.cardObjects[this.id].flipBack();
+    // console.log($.grep(game.board, function(e){ return e[0] == "luigi"; }));
+    //game.flipTopCard(this.id);
     game.firstCardClickedSet(this.id);
 });
 
-$("#gamearea").on("click", '.front', function(){
-    console.log("front clicked");
+//$("#gamearea").on("click", '.front', function(){
+//    console.log("front clicked");
+//});
+
+$( window ).resize(function() {
+    game.boardAdjust();
 });
 
 //edit for later
