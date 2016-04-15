@@ -130,9 +130,13 @@ function MemoryMatch(){
     var second = this.second_card_clicked;
 
     this.firstCardClickedSet = function(id){
+
         if (first === null){
             first = this.cardObjects[id];
             first.flipBack();
+        }
+        else if (second !== null || first.id == id){
+            return;
         }
         else {
             this.secondCardClickedSet(id);
@@ -142,18 +146,22 @@ function MemoryMatch(){
     this.secondCardClickedSet = function(id){
         second = this.cardObjects[id];
         second.flipBack();
-        if (first.imgsrc === second.imgsrc) {
-            // toggle function
-            first.card.hide();
-            second.card.hide();
-        }
-        else {
-            first.flipBack();
-            second.flipBack();
-            first = null;
-            second = null;
-        }
-    }
+
+        setTimeout(function(){
+            if (first.imgsrc === second.imgsrc) {
+                // toggle function
+                first.card.hide();
+                second.card.hide();
+            }
+            else {
+                first.flipBack();
+                second.flipBack();
+                first = null;
+                second = null;
+            }
+        }, 1500);
+
+    };
     //close the setCards function
 
     this.compareCards = function(){
@@ -173,12 +181,12 @@ function MemoryMatch(){
             attempts++;
             //accuracy calculation
         }
-    }
+    };
 
     this.flipTopCard = function(id){
         var r = gameScope.cardObjects[id].rowNum;
         var c = gameScope.cardObjects[id].colNum;
-        if( gameScope.board[r - 1][c] !== "undefined"){
+        if( typeof gameScope.board[r - 1][c] !== "undefined"){
             gameScope.board[r - 1][c].flipBack();
             setTimeout(function(){
                 gameScope.board[r - 1][c].flipBack();
