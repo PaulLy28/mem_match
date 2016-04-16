@@ -121,63 +121,73 @@ function MemoryMatch(){
     };
 
 //card logic
-   // this.setCards = function(){
-       // this.card_clicked = null;
-       // var clicked = this.card_clicked;
-        this.first_card_clicked = null;
-        var first = this.first_card_clicked;
-        this.second_card_clicked = null;
-        var second = this.second_card_clicked;
+    // this.setCards = function(){
+    // this.card_clicked = null;
+    // var clicked = this.card_clicked;
+    this.first_card_clicked = null;
+    var first = this.first_card_clicked;
+    this.second_card_clicked = null;
+    var second = this.second_card_clicked;
 
-        this.firstCardClickedSet = function(id){
-            if (first === null){
-                first = this.cardObjects[id];
+    this.firstCardClickedSet = function(id){
+
+        if (first === null){
+            first = this.cardObjects[id];
+            first.flipBack();
+        }
+        else if (second !== null || first.id == id){
+            return;
+        }
+        else {
+            this.secondCardClickedSet(id);
+        }
+    };
+
+    this.secondCardClickedSet = function(id){
+        second = this.cardObjects[id];
+        second.flipBack();
+
+        setTimeout(function(){
+            if (first.imgsrc === second.imgsrc) {
+                // toggle function
+                first.card.addClass("matched").hide();
+                second.card.addClass("matched").hide();
+                if((".matched").length == 2) gameScope.config(game.config(5, cardimages, cardback, baseUrl));
+            }
+            else {
                 first.flipBack();
+                second.flipBack();
             }
-            else {
-                this.secondCardClickedSet(id);
-            }
-        };
+            first = null;
+            second = null;
+        }, 1500);
 
-        this.secondCardClickedSet = function(id){
-            second = this.cardObjects[id];
-            second.flipBack();
-               if (first.imgsrc === second.imgsrc) {
-                   // toggle function
-                   first.card.hide();
-                   second.card.hide();
-            }
-            else {
-                   first.flipBack();
-                   second.flipBack();
-                   first = null;
-                   second = null;
-               }
+    };
+    //close the setCards function
+
+    this.compareCards = function(){
+        if (first === second){
+            //increase match counter
+            pairs_matched++;
+            //remove from dom
+
+            //increase attempts
+            attempts++;
+            //accuracy calculation
         }
-      //close the setCards function
-
-        this.compareCards = function(){
-            if (first === second){
-                //increase match counter
-                pairs_matched++;
-                //remove from dom
-
-                //increase attempts
-                attempts++;
-                //accuracy calculation
-            }
-            else {
-                //flip both cards back
-                cardScope.flipBack();
-                //increase attemtps
-                attempts++;
-                //accuracy calculation
-            }
+        else {
+            //flip both cards back
+            cardScope.flipBack();
+            //increase attemtps
+            attempts++;
+            //accuracy calculation
         }
+    };
 
     this.flipTopCard = function(id){
         var r = gameScope.cardObjects[id].rowNum;
         var c = gameScope.cardObjects[id].colNum;
+
         if(typeof gameScope.board[r - 1] !== "undefined" && typeof gameScope.board[r - 1][c] !== "undefined"){
             gameScope.board[r - 1][c].flipBack();
             setTimeout(function(){
@@ -187,48 +197,58 @@ function MemoryMatch(){
 
     }
 
-}//close the memory match function
+    //generate front and back cards
+    function Card(id, img, row, col, base, back){
+        var cardScope = this;
+        var baseUrl = base ;
+        this.id = id;
+        this.imgsrc = img;
+        this.colNum = col;
+        this.rowNum = row;
+        this.card = $("<div>", {
+            id: id,
+            class: "card"
+        });
 
-//generate front and back cards
-function Card(id, img, row, col, base, back){
-    var cardScope = this;
-    var baseUrl = base ;
-    this.id = id;
-    this.imgsrc = img;
-    this.colNum = col;
-    this.rowNum = row;
-    this.card = $("<div>", {
-        id: id,
-        class: "card"
-    });
+        this.frontCard = $("<div>", {
+            html: "<img src='" + base + img + "'>",
+            class: "front"
+        });
 
-    this.frontCard = $("<div>", {
-       html: "<img src='" + base + img + "'>",
-       class: "front"
-    });
-
-    this.backCard = $("<div>",{
-        html: "<img src='" + base + back + "'>",
-        class: "back"
-        //css: {"background": 'url(' + baseUrl + 'card-' + img + '.jpg) no-repeat'}
-    });
+        this.backCard = $("<div>",{
+            html: "<img src='" + base + back + "'>",
+            class: "back"
+            //css: {"background": 'url(' + baseUrl + 'card-' + img + '.jpg) no-repeat'}
+        });
 
 //method to append cards
-    this.appendCards = function(){
-        $(this.card).append(cardScope.frontCard, cardScope.backCard);
-        $("#" + this.rowNum + this.colNum).append(cardScope.card);
-    };
+        this.appendCards = function(){
+            $(this.card).append(cardScope.frontCard, cardScope.backCard);
+            $("#" + this.rowNum + this.colNum).append(cardScope.card);
+        };
 
-    //hide toggles between cards and remove cards if match
-    this.flipBack = function(){
-        $(cardScope.backCard).toggle();
-    };
+        //hide toggles between cards and remove cards if match
+        this.flipBack = function(){
+            $(cardScope.backCard).toggle();
+        };
 
-    this.testCard = function(){
+        this.testCard = function(){
 
-        console.log(cardScope.imgsrc, cardScope.rowNum, cardScope.colNum, "YO DEAD");
+            console.log(cardScope.imgsrc, cardScope.rowNum, cardScope.colNum, "YO DEAD");
+        };
+
+        cardScope.card.on('click', function(e) {
+            e.preventDefault();
+            gameScope.firstCardClickedSet(cardScope.id);
+        });
     }
-}
+    $( window ).resize(function() {
+        game.boardAdjust();
+    });
+
+}//close the memory match function
+
+
 //To create a game you need an image array, back image, and optional image url
 var cardimages =  [ 'flower.jpg','toad.jpg','goomba.jpg','mario.jpg','luigi.jpg','yoshi.jpg'];
 var cardback = 'back.jpg';
@@ -239,16 +259,14 @@ game.config(5, cardimages, cardback, baseUrl);
 
 $("#gamearea").on('click','.card',function(){
    // console.log($.grep(game.board, function(e){ return e[0] == "luigi"; }));
-   game.flipTopCard(this.id);
-    game.firstCardClickedSet(this.id);
+   //game.flipTopCard(this.id);
+    //game.firstCardClickedSet(this.id);
 });
 
 //$("#gamearea").on("click", '.front', function(){
 //    console.log("front clicked");
 //});
 
-$( window ).resize(function() {
-    game.boardAdjust();
-});
+
 
 //edit for later
