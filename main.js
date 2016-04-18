@@ -7,7 +7,6 @@ function GameLogic(gameManager){
     this.title =  "MemMatch";
     this.cardSet = [];
     this.shuffleCount = 3;
-    this.rows = 3;
     //current board layout with objects in position
     this.board = [];
     //current card Objects in game
@@ -22,8 +21,8 @@ function GameLogic(gameManager){
             alert('no images provided!');
             return
         }
-        this.cardImageBaseUrl = baseUrl || "";
-        logicScope.rows = this.colCheck(cols);
+        this.cardImageBaseUrl = baseUrl || ""
+
         logicScope.boardCreate(cols);
         this.boardAdjust();
     };
@@ -32,7 +31,7 @@ function GameLogic(gameManager){
         var width = Math.floor( 100/logicScope.board[0].length );
         var height = Math.floor(100/logicScope.board.length);
         var $grid = $(".gridSquare");
-        console.log("width: " + width, "height: " + height, "rows: " + logicScope.rows);
+        console.log("width: " + width, "height: " + height);
         $grid.width((width -1) + "%").height( (height - 1) + "%");
         if($grid.width() > $grid.height() ){
             $(".card").width($grid.height() + "px");
@@ -153,7 +152,7 @@ function GameLogic(gameManager){
                 // toggle function
                 first.card.addClass("matched").hide();
                 second.card.addClass("matched").hide();
-                if((".matched").length == 2) logicScope.config(game.config(5, cardimages, cardback, baseUrl));
+                if($(".matched").length == logicScope.cardSet.length * 2) console.log("you win");
             }
             else {
                 first.flipBack();
@@ -161,7 +160,7 @@ function GameLogic(gameManager){
             }
             first = null;
             second = null;
-        }, 1500);
+        }, 800);
 
     };
 
@@ -181,7 +180,7 @@ function GameLogic(gameManager){
 
 
     $( window ).resize(function() {
-        game.boardAdjust();
+        logicScope.boardAdjust();
     });
 
 }//close the memory match function

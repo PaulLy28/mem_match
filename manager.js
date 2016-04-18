@@ -17,4 +17,4 @@ MemoryMatch.prototype.init = function(col, images, back, base)
 var cardimages =  [ 'flower.jpg','toad.jpg','goomba.jpg','mario.jpg','luigi.jpg','yoshi.jpg'];
 var cardback = 'back.jpg';
 var baseUrl = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/19554/card-';
-var game = new MemoryMatch(5, cardimages, cardback, baseUrl);
+var game = new MemoryMatch(3, cardimages, cardback, baseUrl);
