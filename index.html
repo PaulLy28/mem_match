@@ -7,46 +7,65 @@
         body{
             box-sizing: border-box;
         }
-        #gamearea{
-            position: relative;
-            display: flex;
-            flex-flow: row wrap;
-            height: 80vh;
-            width: 80vw;
-            border: 1px solid black;
-        }
-        .card{
-            position: relative;
-            border: 1px solid black;
-            left: 0%;
-            top: 0%;
-        }
-        .front{
-            position: absolute;
+        /*#gamearea{*/
+            /*position: relative;*/
+            /*display: flex;*/
+            /*flex-flow: row wrap;*/
+            /*height: 80vh;*/
+            /*width: 80vw;*/
+            /*border: 1px solid black;*/
+        /*}*/
 
-        }
-        .back{
-            position: absolute;
-
-        }
+        /*.card{*/
+            /*position: relative;*/
+            /*border: 1px solid black;*/
+            /*left: 0%;*/
+            /*top: 0%;*/
+        /*}*/
+        /*.front{*/
+            /*position: absolute;*/
+        /*}*/
+        /*.back{*/
+            /*position: absolute;*/
+        /*}*/
         .front img, .back img{
             /*max-width: 100%;*/
             width:100%;
             height: 100%;
         }
-        .gridSquare{
-            position: relative;
+        /*.gridSquare{*/
+            /*position: relative;*/
+            /*border: 1px solid black;*/
+        /*}*/
+        #gamearea{
+            max-width: 1200px;
             border: 1px solid black;
-
         }
+        .gridSquare{
+            float: left;
+            width: 200px;
+            height: 300px;
+            background: #0D8;
+            border: 2px solid #333;
+            border-color: hsla(0, 0%, 0%, 0.7);
+        }
+        /*.gridSquare .front img, .gridSquare .back img{*/
+            /*display: block;*/
+            /*width: 100%*/
+        /*}*/
+        /*.mario.jpg{*/
+            /*background-color: red;*/
+        /*}*/
     </style>
     <script   src="https://code.jquery.com/jquery-2.2.3.js"   integrity="sha256-laXWtGydpwqJ8JA+X9x2miwmaiKhn8tVmOVEigRNtP4="   crossorigin="anonymous"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/2.2.2/isotope.pkgd.js"></script>
+    <script src="https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.min.js"></script>
 </head>
 <body>
 
 <div id = "gamearea"></div>
-
+<!--<button id="shuffler">shuffle</button>-->
+<!--<button id="stopShuffler">STOP</button>-->
 </body>
 <script src="main.js"></script>
 <script src="card.js"></script>

@@ -21,7 +21,7 @@ function Card(id, img, row, col, base, back, gameScope){
         class: "back"
         //css: {"background": 'url(' + baseUrl + 'card-' + img + '.jpg) no-repeat'}
     });
-
+    this.frontCard.hide();
 //method to append cards
     this.appendCards = function(){
         $(this.card).append(cardScope.frontCard, cardScope.backCard);
@@ -31,6 +31,7 @@ function Card(id, img, row, col, base, back, gameScope){
     //hide toggles between cards and remove cards if match
     this.flipBack = function(){
         $(cardScope.backCard).toggle();
+        $(cardScope.frontCard).toggle();
     };
 
     this.testCard = function(){
@@ -40,6 +41,7 @@ function Card(id, img, row, col, base, back, gameScope){
 
     cardScope.card.on('click', function(e) {
         e.preventDefault();
-        gameScope.GameEngine.firstCardClickedSet(cardScope.id);
+        console.log(cardScope.imgsrc);
+        gameScope.GameEngine.cardClicked(cardScope);
     });
 }
